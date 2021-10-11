@@ -1,12 +1,14 @@
 /*eslint-disable*/
 
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, ScrollView, Image } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, ScrollView, Image, Dimensions } from 'react-native';
 import * as MediaLibrary from 'expo-media-library';
 import cover from '../image/j.png';
 import { useHistory } from 'react-router-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { height as HEIGHT, width as WIDTH } from './Contants';
+const { width, height } = Dimensions.get("screen");
+const HEIGHT = height;
+const WIDTH = width;
 
 export const Dashboard = () => {
 

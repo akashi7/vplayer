@@ -2,17 +2,22 @@
 import React, { useEffect } from 'react';
 import { View, Text, StyleSheet, Image, SafeAreaView, Dimensions } from 'react-native';
 import { useHistory } from 'react-router-native';
-import { height as HEIGHT, width as WIDTH } from './Contants';
+
 
 
 
 import Logo from '../image/j.png';
 
-
+const { width, height } = Dimensions.get("screen");
+const HEIGHT = height;
+const WIDTH = width;
 
 export const SplashScreen = () => {
 
-  const { width, height } = Dimensions.get("screen");
+
+
+
+
 
   const Actions = useHistory();
   useEffect(() => {

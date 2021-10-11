@@ -1,12 +1,13 @@
 /*eslint-disable*/
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, Text, View, Image, TouchableOpacity, SafeAreaView } from 'react-native';
+import { StyleSheet, Text, View, Image, TouchableOpacity, SafeAreaView, ScrollView, Dimensions, RefreshControl } from 'react-native';
 import Slider from '@react-native-community/slider';
 import Icon from 'react-native-vector-icons/Ionicons';
+import Icons from 'react-native-vector-icons/MaterialCommunityIcons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import Trackplayer, { Capability, useProgress, State } from 'react-native-track-player';
+import Trackplayer, { Capability, useProgress, RepeatMode } from 'react-native-track-player';
 import images from '../image/j.png';
-import { height as HEIGHT, width as WIDTH } from './Contants';
+
 
 
 Trackplayer.updateOptions({
@@ -17,6 +18,9 @@ Trackplayer.updateOptions({
   ]
 });
 
+const { width, height } = Dimensions.get("screen");
+const HEIGHT = height;
+const WIDTH = width;
 
 
 export const PlayMusic = () => {
@@ -26,12 +30,42 @@ export const PlayMusic = () => {
 
 
 
+
   const [state, setState] = useState({
     current: 0,
     duration: 0,
     playing: false,
-    songName: ""
+    songName: "",
+    repeatMode: "off"
   });
+
+
+  const Repeat = () => {
+    if (state.repeatMode === 'off') {
+      return 'repeat-off';
+    }
+    if (state.repeatMode === 'track') {
+      return 'repeat-once';
+    }
+  };
+
+  const Change = () => {
+    if (state.repeatMode === 'off') {
+      Trackplayer.setRepeatMode(RepeatMode.Track);
+      setState({ ...state, repeatMode: 'track' });
+    }
+    if (state.repeatMode === 'track') {
+      Trackplayer.setRepeatMode(RepeatMode.Queue);
+      setState({ ...state, repeatMode: 'repeat' });
+    }
+    if (state.repeatMode === 'repeat') {
+      Trackplayer.setRepeatMode(RepeatMode.Off);
+      setState({ ...state, repeatMode: 'off' });
+    }
+  };
+
+
+
 
 
 
@@ -40,15 +74,15 @@ export const PlayMusic = () => {
     const Id = await AsyncStorage.getItem("id");
     const URL = await AsyncStorage.getItem("url");
     const title = await AsyncStorage.getItem("name");
-    const T = title.replace(".mp3", "");
+    const TitleName = title.replace(".mp3", "");
 
-    setState({ ...state, songName: T });
+    setState({ ...state, songName: TitleName });
 
     const Track = [
       {
         id: Id,
         url: URL,
-        title: T,
+        title: TitleName,
         artwork: images,
       }
     ];
@@ -74,7 +108,7 @@ export const PlayMusic = () => {
   const StatePlaying = state.playing;
   const initial = 0;
 
-  let playingState = State.Paused;
+
 
 
   useEffect(() => {
@@ -83,14 +117,20 @@ export const PlayMusic = () => {
       if (Time >= progress.duration) {
         progress.position = initial;
         setState({ ...state, playing: false });
-        await Trackplayer.pause();
       }
-      if (playingState) {
-        setState({ ...state, playing: false });
-      }
+
+
+      // if (playingState.Paused) {
+      //   setState({ ...state, playing: true });
+      // }
+      // if (playingState.Playing) {
+      //   setState({ ...state, playing: false });
+      // }
+
+
     })();
 
-  }, [Time, StatePlaying, playingState]);
+  }, [Time, StatePlaying]);
 
   const play = async () => {
 
@@ -138,6 +178,10 @@ export const PlayMusic = () => {
         </Text>
       </View>
       <View style={styles.musicControlls}>
+        <TouchableOpacity onPress={() => Change()}>
+          <Icons name={`${Repeat()}`} size={45} color={(state.repeatMode !== 'off' && state.repeatMode === 'track') ? "#FFD369" : "#777777"} style={{ padding: 17 }} />
+        </TouchableOpacity>
+
         {state.playing ? <TouchableOpacity >
           <Icon name={"ios-pause-circle"} size={75} color="#FFD369"
             onPress={
@@ -151,6 +195,7 @@ export const PlayMusic = () => {
               } />
           </TouchableOpacity>}
       </View>
+
     </SafeAreaView>
   );
 };
@@ -199,7 +244,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     width: "60%",
     justifyContent: "space-between",
-    marginTop: 15,
-    marginLeft: 150
+    marginTop: 1,
+    marginLeft: 1,
   }
 });
